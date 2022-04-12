@@ -1,0 +1,22 @@
+{% for assignment in assignments %}
+
+<tr>
+  <td scope="row" style="text-align: center">
+    <form>
+    {% csrf_token %}
+      {% if assignment.status %}
+        <input type="checkbox" checked onclick='assignmentFinish("False","{{assignment.id}}")'>
+      {% else %}
+        <input type="checkbox" onclick='assignmentFinish("True","{{assignment.id}}")'>
+      {% endif %}
+    </form>
+  </td>
+
+  <td><span class="badge badge-{{assignment.module.colour}}">{{assignment.module}}</span></td>
+
+  <td><a href="{{ assignment.assigmentFile.url }}">{{assignment.title}}</a></td>
+  
+  <td>{{assignment.deadline}}</td>
+  ...
+</tr>
+{% endfor %}

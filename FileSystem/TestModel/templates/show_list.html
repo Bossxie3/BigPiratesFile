@@ -1,0 +1,263 @@
+<head>
+    <title>大海怪文件检索界面</title>
+<link rel="stylesheet" href="//unpkg.com/layui@2.6.8/dist/css/layui.css">
+<script src="//unpkg.com/layui@2.6.8/dist/layui.js">
+</script>
+<script src="https://cdn.staticfile.org/jquery/2.0.0/jquery.min.js">
+</script>
+</head>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form id="searchForm" class="layui-form toolbar" action="/search_post/" method="post">
+                <div class="layui-form-item">
+                    {% csrf_token %}
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 150px;">
+                            <input type="text" name="filename" placeholder="输入文件名" autocomplete="off" class="layui-input" value="{{filename}}">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <select name="gameName" lay-verify="">
+                                <option value="">选择游戏名</option>
+                                <option value="NSG" {% if gameName == 'NSG' %}selected{% endif %}>NSG</option>
+                                <option value="AOW" {% if gameName == 'AOW' %}selected{% endif %}>AOW</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="bigNumbername" placeholder="输入大编号" autocomplete="off" class="layui-input" value="{{bigNumbername}}">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="producers" placeholder="输入制作人" autocomplete="off" class="layui-input" value="{{producers}}">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select name="makeMode" lay-verify="">
+                                <option value="">选择模式</option>
+                                <option value="UE" {% if makeMode == 'UE' %}selected{% endif %}>UE</option>
+                                <option value="AE" {% if makeMode == 'AE' %}selected{% endif %}>AE</option>
+                                <option value="剪辑" {% if makeMode == '剪辑' %}selected{% endif %}>剪辑</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select name="language" lay-verify="">
+                                <option value="">选择语言</option>
+                                {% if languages %}
+                                    {% for country in languages %}
+                                    <option value="{{country.country}}" {% if language == country.country %}selected{% endif %}>{{country.country}}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select name="localization" lay-verify="">
+                                <option value="">本地化</option>
+                                <option value="原版" {% if localization == '原版' %}selected{% endif %}>原版</option>
+                                <option value="改版" {% if localization == '改版' %}selected{% endif %}>改版</option>
+                                <option value="预约" {% if localization == '预约' %}selected{% endif %}>预约</option>
+                                <option value="立即下载" {% if localization == '立即下载' %}selected{% endif %}>立即下载</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select name="checkPeople" lay-verify="">
+                                <option value="">审核人</option>
+                                {% if users %}
+                                    {% for checkuser in users %}
+                                    <option value="{{checkuser.username}}" {% if checkPeople == checkuser.username %}selected{% endif %}>{{checkuser.username}}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时间范围</label>
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="startDate" id="start_date" class="layui-input" placeholder="开始日期" value="{{startDate}}">
+                            </div>
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="endDate" id="end_date" class="layui-input" placeholder="结束日期" value="{{endDate}}">
+                            </div>
+                            <div class="layui-inline">
+                                <button lay-filter="tbAdvTbSearch" lay-submit class="layui-btn icon-btn">
+                                    <i class="layui-icon">&#xe615;</i>搜索
+                                </button>
+                                <!--<button onclick="formReset()" class="layui-btn layui-btn-primary">重置</button>-->
+                                <a href="/show_list/" class="layui-btn layui-btn-primary">重置</a>
+                            </div>
+                    </div>
+                </div>
+            </form>
+      {% if file_list %}
+    <table class="layui-table"  lay-data="{height:710,  page:true, id:'mytable',toolbar:true,limits:[100,200,300,500,1000],limit:1000}" lay-filter="myfilter">
+    <thead>
+    <tr>
+    <th lay-data="{field:'id', width:80,align:'center', sort: true,type:'numbers'}">序号</th>
+    <th lay-data="{field:'bigNumber', width:100, align:'center',sort: true}">大编号</th>
+    <th lay-data="{field:'sex2', width:90, align:'center',sort: true}">小编号</th>
+    <th lay-data="{field:'content', width:200, align:'center',sort: true}">视频名</th>
+    <th lay-data="{field:'fileName', width:120, align:'center',sort: true}">文件名</th>
+    <th lay-data="{field:'fileAdr', width:120,align:'center',}">文件地址</th>
+    <th lay-data="{field:'checkTime', width:150,align:'center', sort: true}">审核日期</th>
+    <th lay-data="{field:'checkPeople', width:100,align:'center', sort: true}">审核人</th>
+    <th lay-data="{field:'sex3', width:100, align:'center',sort: true}">制作人</th>
+    <th lay-data="{field:'sex4', width:100,align:'center', sort: true}">模式</th>
+    <th lay-data="{field:'sex5', width:100, align:'center',sort: true}">语言</th>
+    <th lay-data="{field:'sex6', width:100, align:'center',sort: true}">本地化</th>
+    <th lay-data="{field:'sex7', width:100,align:'center', sort: true}">游戏名</th>
+    <th lay-data="{field:'sex8', width:100,align:'center', sort: true}">尺寸</th>
+    </tr>
+    </thead>
+        {% for file in file_list %}
+            <tr>
+                <td></td>
+                {% if file.big_number_name == '通常' %}
+                <td>{{file.big_number_num}}</td>
+                {% else %}
+                <td>{{file.big_number_name}}{{file.big_number_num}}</td>
+                {% endif %}
+                <td>{{file.small_number}}</td>
+                <td>{{file.content}}</td>
+                <td><a onclick="copyFileName('{{file.file_name}}')"><i class="layui-icon layui-icon-share"></i></a> <a  type="button"  onclick="openFile('{{file.file_adr}}'+'{{file.file_name}}')" value="{{file.file_name}}">{{file.file_name}}</a></td>
+                <td><input type="button" class="layui-btn layui-btn-primary layui-border-green" id="fileAdr" onclick="openFileAdr($(this).val())" value="{{file.file_adr}}{{file.file_name}}">{{file.file_adr}}{{file.file_name}}</td>
+                <td>{{file.check_time}}</td>
+                <td>{{file.check_people}}</td>
+                <td>{{file.producer}}</td>
+                <td>{{file.make_mode}}</td>
+                <td>{{file.language}}</td>
+                <td>{{file.localization}}</td>
+                <td>{{file.game_name}}</td>
+                <td>{{file.size}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+<table class="layui-table" lay-data="{height:790,  page:true, id:'test',limit:20 }" lay-filter="test">
+    <thead>
+    <tr>
+    <th lay-data="{field:'id', width:80,align:'center', sort: true,type:'numbers'}">序号</th>
+    <th lay-data="{field:'bigNumber', width:100, sort: true}">大编号</th>
+    <th lay-data="{field:'sex2', width:90, sort: true}">小编号</th>
+    <th lay-data="{field:'content', width:200, sort: true}">视频名</th>
+    <th lay-data="{field:'id', width:200, sort: true}">文件名</th>
+    <th lay-data="{field:'username', width:120}">文件地址</th>
+    <th lay-data="{field:'sex', width:200, sort: true}">制作日期</th>
+    <th lay-data="{field:'uptime', width:200, sort: true}">上传日期</th>
+    <th lay-data="{field:'sex3', width:150, sort: true}">制作人</th>
+    <th lay-data="{field:'sex4', width:100, sort: true}">模式</th>
+    <th lay-data="{field:'sex5', width:100, sort: true}">语言</th>
+    <th lay-data="{field:'sex6', width:100, sort: true}">本地化</th>
+    <th lay-data="{field:'sex7', width:200, sort: true}">游戏名</th>
+    <th lay-data="{field:'sex8', width:200, sort: true}">尺寸</th>
+    </tr>
+    </thead>
+    </table>
+{% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function getNowDate(){
+         var time = new Date();
+         var day = ('0' + time.getDate()).slice(-2);
+         var month = ('0' + (time.getMonth() + 1)).slice(-2);
+         var today = time.getFullYear()+'-'+month+'-'+day;
+         return today
+    }
+
+    layui.use('laydate', function(){
+  var laydate = layui.laydate;
+laydate.render({
+  elem: '#start_date' //开始时间和结束时间所在 input 框的父选择器
+  //设置开始日期、日期日期的 input 选择器
+  ,value:'2016-10-11'
+  ,isInitValue: false
+});
+laydate.render({
+  elem: '#end_date' //开始时间和结束时间所在 input 框的父选择器
+  //设置开始日期、日期日期的 input 选择器
+  ,value:getNowDate()
+  ,isInitValue: false
+});
+});
+
+function formReset(){
+    //document.getElementById("searchForm").reset();
+    //$('#searchForm').reset();
+    $('#searchForm').find('input[type=text],select').each(function(){
+        $(this).val('');
+    })
+}
+
+function openFileI(filename){
+    $.ajax({
+        url: "/open_File/",
+        method: "GET", // or another (GET), whatever you need
+        data: {'adr':filename},
+        success: function (data) {
+            // success callback
+            // you can process data returned by function from views.py
+        }
+    });
+}
+
+function copyFileName(filename){
+    const el=document.createElement('input');
+    var data='';
+    data+=filename;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    alert('已复制 '+data);
+}
+
+function openFile(filename){
+    const el=document.createElement('input');
+    var data='#open#';
+    data+=filename;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+function openFileAdr(fileAdr){
+    const el=document.createElement('input');
+    var data='#openFileAdr#';
+    data+=fileAdr;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+layui.use('table', function() {
+    var table = layui.table;
+
+  var ins1=table.render({
+  id:'myTable'
+  });
+
+table.exportFile(ins1.config.id,data);
+
+});
+</script>

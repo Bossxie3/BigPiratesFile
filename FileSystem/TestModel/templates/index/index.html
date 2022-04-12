@@ -1,0 +1,150 @@
+<html>
+<head>
+    <title>大海怪文件管理系统</title>
+    <link rel="stylesheet" href="/static/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/assets/module/admin.css?v=318"/>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+        <div class="layui-logo">
+            <img src="/static/assets/images/logo.png"/>
+            <cite>&nbsp;导航 </cite>
+        </div>
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item" lay-unselect>
+                <a ew-event="flexible" title="侧边伸缩"><i class="layui-icon layui-icon-shrink-right"></i></a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a ew-event="refresh" title="刷新"><i class="layui-icon layui-icon-refresh-3"></i></a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a ew-event="open" data-type="1" data-area="800px,600px"  data-content="{% for file in replace_files %}
+                                <pre>{{file.file_name}}</pre>
+                        {% endfor %}"><i class="layui-icon layui-icon-template-1"></i></a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a id="showinfo" lay-tips="{% for file in replace_files %}
+                                {{file.big_number_num}}_{{file.small_number}}
+                        {% endfor %}">
+                    {% if replace_files %}
+                    <div class="layui-input-inline" style="color: red ;">
+                        {% for country in Country %}
+                            {{country}}
+                        {% endfor %}
+                        有最近两天被替换的视频,点击左边按钮查看或在最近删除视频中搜索
+                    </div>
+<!--                        {% for file in replace_files %}-->
+<!--                            <div class="layui-input-inline" style="color: red ;">-->
+<!--                                {{file.big_number_num}}_{{file.small_number}}-->
+<!--                            </div>-->
+<!--                        {% endfor %}-->
+                    {% endif %}
+                </a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a title="提示">
+                    {% if bignumbers %}
+                        <div class="layui-input-inline" style="color: red ;">
+                            有未用的编号
+                        </div>
+                        {% for numbers in bignumbers %}
+                            <div class="layui-input-inline" style="color: red ;">
+                                {{numbers.big_number_num}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+<!--                    {% if delete_files %}-->
+<!--                        <div class="layui-input-inline" style="color: red ;">-->
+<!--                            有已删除的入库文件-->
+<!--                        </div>-->
+<!--                        {% for file in delete_files %}-->
+<!--                            <div class="layui-input-inline" style="color: red ;">-->
+<!--                                {{file.big_number_num}}_{{file.small_number}}-->
+<!--                            </div>-->
+<!--                        {% endfor %}-->
+<!--                    {% endif %}-->
+                </a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a  lay-tips="{% for file in delete_files %}
+                                {{file.big_number_num}}_{{file.small_number}}
+                        {% endfor %}">
+                    {% if delete_files %}
+                    <div class="layui-input-inline" style="color: red ;">
+                        有最近两天已删除的入库文件
+                    </div>
+                    {% endif %}
+                </a>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item layui-hide-xs" lay-unselect>
+                <a ew-event="fullScreen" title="全屏"><i class="layui-icon layui-icon-screen-full"></i></a>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a>
+                    <img src="/static/assets/images/head.jpg" class="layui-nav-img">
+                    <cite>{{request.session.username}}</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd lay-unselect><a ew-event="logout" data-url="/logout/">退出</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item" lay-unselect>
+                <a ew-event="theme" title="主题"><i class="layui-icon layui-icon-more-vertical"></i></a>
+            </li>
+        </ul>
+    </div>
+        <!-- 侧边栏 -->
+        <div class="layui-side">
+                    <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree arrow2" lay-filter="admin-side-nav" lay-shrink="_all">
+                <li class="layui-nav-item">
+                    <a><i class="layui-icon layui-icon-video"></i>&emsp;<cite>视频文件系统</cite></a>
+                    <dl class="layui-nav-child">
+                        <dd><a lay-href="/show_list/">视频搜索</a></dd>
+                        <dd><a lay-href="/upload/">视频审核入库</a></dd>
+                        <dd><a lay-href="/supple/">视频替换删除</a></dd>
+                        <dd><a lay-href="/delete_file/">最近删除视频</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a><i class="layui-icon layui-icon-picture"></i>&emsp;<cite>图片文件系统</cite></a>
+                    <dl class="layui-nav-child">
+                        <dd><a lay-href="/show_picture/">图片搜索</a></dd>
+                        <dd><a lay-href="/pic_upload/">图片审核入库</a></dd>
+                        <dd><a lay-href="/pic_supple/">图片替换删除</a></dd>
+                        <dd><a lay-href="/delete_picfile/">最近删除图片</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- 主体部分 -->
+        <div class="layui-body">
+
+        </div>
+        <!-- 底部 -->
+        <div class="layui-footer">
+                    copyright © 2022 <a href="http://easyweb.vip" target="_blank">filesystem</a> all rights reserved.
+        <span class="pull-right">Version 1.0.0</span>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/static/assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="/static/assets/js/common.js?v=318"></script>
+    <script>
+        layui.use(['index'], function () {
+            var $ = layui.jquery;
+            var index = layui.index;
+            // 加载默认主页
+            index.loadHome({
+                menuPath: '/login/',
+                menuName: '<i class="layui-icon layui-icon-home"></i>'
+            });
+        });
+    </script>
+</body>
+</html>

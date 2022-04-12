@@ -1,0 +1,292 @@
+<head>
+    <title>大海怪文件检索界面</title>
+<link rel="stylesheet" href="//unpkg.com/layui@2.6.8/dist/css/layui.css">
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"]{
+        top: 50%;
+        transform: translateY(-50%);
+    }
+</style>
+<script src="//unpkg.com/layui@2.6.8/dist/layui.js">
+</script>
+<script src="https://cdn.staticfile.org/jquery/2.0.0/jquery.min.js">
+</script>
+</head>
+    <div style="padding: 10px;">
+    <form id="searchForm" class="layui-form" action="/delete_picfile/" method="post">
+        <div class="layui-form-item">
+            {% csrf_token %}
+            <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" name="filename" placeholder="输入文件名" autocomplete="off" class="layui-input" value="{{filename}}">
+            </div>
+            <div class="layui-input-inline" style="width: 120px;">
+                <select name="gameName" lay-verify="">
+                    <option value="">选择游戏名</option>
+                    <option value="NSG" {% if gameName == 'NSG' %}selected{% endif %}>NSG</option>
+                    <option value="AOW" {% if gameName == 'AOW' %}selected{% endif %}>AOW</option>
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="bigNumbername" placeholder="输入大编号" autocomplete="off" class="layui-input" value="{{bigNumbername}}">
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="producers" placeholder="输入制作人" autocomplete="off" class="layui-input" value="{{producers}}">
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <select name="use" lay-verify="">
+                    <option value="">选择用途</option>
+                    <option value="广告" {% if use == '广告' %}selected{% endif %}>广告</option>
+                    <option value="社区" {% if use == '社区' %}selected{% endif %}>社区</option>
+                    <option value="icon" {% if use == 'icon' %}selected{% endif %}>icon</option>
+                    <option value="商店" {% if use == '商店' %}selected{% endif %}>商店</option>
+                    <option value="落地页" {% if use == '落地页' %}selected{% endif %}>落地页</option>
+                    <option value="官网" {% if use == '官网' %}selected{% endif %}>官网</option>
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <select name="language" lay-verify="">
+                    <option value="">选择语言</option>
+                    <option value="CN" {% if language == 'CN' %}selected{% endif %}>CN</option>
+                    <option value="YN" {% if language == 'YN' %}selected{% endif %}>YN</option>
+                    <option value="VN" {% if language == 'VN' %}selected{% endif %}>VN</option>
+                    <option value="KR" {% if language == 'KR' %}selected{% endif %}>KR</option>
+                    <option value="JP" {% if language == 'JP' %}selected{% endif %}>JP</option>
+                    <option value="EN" {% if language == 'EN' %}selected{% endif %}>EN</option>
+                    <option value="ZH" {% if language == 'ZH' %}selected{% endif %}>ZH</option>
+                    <option value="TH" {% if language == 'TH' %}selected{% endif %}>TH</option>
+                    <option value="MY" {% if language == 'MY' %}selected{% endif %}>MY</option>
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <select name="localization" lay-verify="">
+                    <option value="">本地化</option>
+                    <option value="原版" {% if localization == '原版' %}selected{% endif %}>原版</option>
+                    <option value="改版" {% if localization == '改版' %}selected{% endif %}>改版</option>
+                    <option value="预约" {% if localization == '预约' %}selected{% endif %}>预约</option>
+                    <option value="立即下载" {% if localization == '立即下载' %}selected{% endif %}>立即下载</option>
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <select name="deleteFrom" lay-verify="">
+                    <option value="">来源</option>
+                    <option value="已入库" {% if deleteFrom == '已入库' %}selected{% endif %}>已入库</option>
+                    <option value="未入库" {% if deleteFrom == '未入库' %}selected{% endif %}>未入库</option>
+                    <option value="替换" {% if deleteFrom == '替换' %}selected{% endif %}>替换</option>
+                </select>
+            </div>
+            <label class="layui-form-label">时间范围</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="startDate" id="start_date" class="layui-input" placeholder="开始日期" value="{{startDate}}">
+                </div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="endDate" id="end_date" class="layui-input" placeholder="结束日期" value="{{endDate}}">
+                </div>
+                    <button type="submit" name="submit" value="搜索" class="layui-btn">搜索</button>
+                    <!--<button onclick="formReset()" class="layui-btn layui-btn-primary">重置</button>-->
+                    <a href="/delete_picfile/" class="layui-btn layui-btn-primary">重置</a>
+                    {% if c_username == 'xx' %}
+                    <input id="delete" type="button" class="layui-btn layui-btn-danger" value="删除">
+                    <input id="deleteOlder" type="button" class="layui-btn layui-btn-danger" value="删除两天前">
+                    {% endif %}
+        </div>
+    </form>
+    </div>
+      {% if delete_files %}
+    <table class="layui-table" lay-data="{height:710,  page:true, id:'mytable',limit:90,initSort:{field:'bigNumber', type:'desc'}}" lay-filter="myfilter">
+    <thead>
+    <tr>
+    <th lay-data="{field:'check', width:50, align:'center',sort: true,type:'checkbox'}"></th>
+    <th lay-data="{field:'id', width:80,align:'center', sort: true,type:'numbers'}">序号</th>
+    <th lay-data="{field:'bigNumber', width:100, align:'center',sort: true}">大编号</th>
+    <th lay-data="{field:'sex2', width:90, align:'center',sort: true}">小编号</th>
+    <th lay-data="{field:'content', width:200, align:'center',sort: true}">视频名</th>
+    <th lay-data="{field:'fileName', width:120, align:'center',sort: true}">文件名</th>
+    <th lay-data="{field:'fileAdr', width:120,align:'center',}">文件地址</th>
+    <th lay-data="{field:'deleteTime', width:150, align:'center',sort: true}">删除日期</th>
+    <th lay-data="{field:'deleteFrom', width:75, align:'center'}">来源</th>
+    <th lay-data="{field:'uptime', width:150,align:'center', sort: true}">上传日期</th>
+    <th lay-data="{field:'sex3', width:100, align:'center',sort: true}">制作人</th>
+    <th lay-data="{field:'sex4', width:100,align:'center', sort: true}">模式</th>
+    <th lay-data="{field:'sex5', width:100, align:'center',sort: true}">语言</th>
+    <th lay-data="{field:'sex6', width:80, align:'center'}">本地化</th>
+    <th lay-data="{field:'sex7', width:100,align:'center', sort: true}">游戏名</th>
+    <th lay-data="{field:'sex8', width:100,align:'center', sort: true}">尺寸</th>
+    <th lay-data="{field:'fileAllName', width:120, align:'center',sort: true}">文件全名</th>
+    </tr>
+    </thead>
+        {% for file in delete_files %}
+            <tr>
+                <td></td>
+                <td></td>
+                {% if file.big_number_name == '通常' %}
+                <td>{{file.big_number_num}}</td>
+                {% else %}
+                <td>{{file.big_number_name}}{{file.big_number_num}}</td>
+                {% endif %}
+                <td>{{file.small_number}}</td>
+                <td>{{file.content}}</td>
+                <td><input type="button" class="layui-btn layui-btn-primary layui-border-blue" onclick="openFile('file://192.168.0.192/marketing/Marketing/FileDelete/'+$(this).val())" value="{{file.file_name}}"></td>
+                <td><input type="button" class="layui-btn layui-btn-primary layui-border-green" id="fileAdr" onclick="openFileAdr($(this).val())" value="file://192.168.0.192/marketing/Marketing/FileDelete/{{file.file_name}}"></td>
+                <td>{{file.delete_time}}</td>
+                <td>{{file.delete_from}}</td>
+                <td>{{file.up_time}}</td>
+                <td>{{file.producer}}</td>
+                <td>{{file.use}}</td>
+                <td>{{file.language}}</td>
+                <td>{{file.localization}}</td>
+                <td>{{file.game_name}}</td>
+                <td>{{file.size}}</td>
+                <td>{{file.file_name}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+<table class="layui-table" lay-data="{height:790,  page:true, id:'test',limit:20 }" lay-filter="test">
+    <thead>
+    <tr>
+    <th lay-data="{field:'id', width:80,align:'center', sort: true,type:'numbers'}">序号</th>
+    <th lay-data="{field:'bigNumber', width:100, sort: true}">大编号</th>
+    <th lay-data="{field:'sex2', width:90, sort: true}">小编号</th>
+    <th lay-data="{field:'content', width:200, sort: true}">视频名</th>
+    <th lay-data="{field:'id', width:200, sort: true}">文件名</th>
+    <th lay-data="{field:'username', width:120}">文件地址</th>
+    <th lay-data="{field:'sex', width:200, sort: true}">制作日期</th>
+    <th lay-data="{field:'uptime', width:200, sort: true}">上传日期</th>
+    <th lay-data="{field:'sex3', width:150, sort: true}">制作人</th>
+    <th lay-data="{field:'sex4', width:100, sort: true}">模式</th>
+    <th lay-data="{field:'sex5', width:100, sort: true}">语言</th>
+    <th lay-data="{field:'sex6', width:100, sort: true}">本地化</th>
+    <th lay-data="{field:'sex7', width:200, sort: true}">游戏名</th>
+    <th lay-data="{field:'sex8', width:200, sort: true}">尺寸</th>
+    </tr>
+    </thead>
+    </table>
+{% endif %}
+
+<script>
+function getNowDate(){
+         var time = new Date();
+         var day = ('0' + time.getDate()).slice(-2);
+         var month = ('0' + (time.getMonth() + 1)).slice(-2);
+         var today = time.getFullYear()+'-'+month+'-'+day;
+         return today
+    }
+
+    layui.use('laydate', function(){
+  var laydate = layui.laydate;
+laydate.render({
+  elem: '#start_date' //开始时间和结束时间所在 input 框的父选择器
+  //设置开始日期、日期日期的 input 选择器
+  ,value:'2016-10-11'
+  ,isInitValue: false
+});
+laydate.render({
+  elem: '#end_date' //开始时间和结束时间所在 input 框的父选择器
+  //设置开始日期、日期日期的 input 选择器
+  ,value:getNowDate()
+  ,isInitValue: false
+});
+});
+
+function formReset(){
+    //document.getElementById("searchForm").reset();
+    //$('#searchForm').reset();
+    $('#searchForm').find('input[type=text],select').each(function(){
+        $(this).val('');
+    })
+}
+
+function openFileI(filename){
+    $.ajax({
+        url: "/open_File/",
+        method: "GET", // or another (GET), whatever you need
+        data: {'adr':filename},
+        success: function (data) {
+            // success callback
+            // you can process data returned by function from views.py
+        }
+    });
+}
+
+function openFile(filename){
+    const el=document.createElement('input');
+    var data='#open#';
+    data+=filename;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+function openFileAdr(fileAdr){
+    const el=document.createElement('input');
+    var data='#openFileAdr#';
+    data+=fileAdr;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+layui.use('table', function() {
+    var table = layui.table;
+
+    table.render({
+        id: 'mytable'
+    });
+
+//选中文件删除
+    $('#delete').click(function () {
+        var checkStatus = table.checkStatus('mytable');
+        filename = checkStatus.data;
+        len = checkStatus.data.length;
+        if (len == 0) {
+            alert('尚未选择文件，请重新选择！')
+        } else {
+            var msg = "该操作不可逆\n\n确认是否删除"
+            if (confirm(msg) == true) {
+                var data = '#deletePicAgain#'
+                for (var i = 0; i < len; i++) {
+                    data += filename[i]['id'];
+                    data += '$';
+                    data += filename[i]['fileAllName'];
+                    if (i != len - 1) {
+                        data += '&';
+                    }
+                }
+                const el = document.createElement('input');
+                el.value = data;
+                el.setAttribute('readonly', '');
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('等待删除成功弹窗后确认');
+                window.location.reload();
+            }
+        }
+    });
+
+    $('#deleteOlder').click(function (){
+       msg='该操作会删除两天前的所有删除缓存文件\n\n确认是否删除'
+       if(confirm(msg)==true){
+           data='#deletePicOlder#'
+           const el = document.createElement('input');
+            el.value = data;
+            el.setAttribute('readonly', '');
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert('等待删除成功弹窗后确认');
+            window.location.reload();
+       }
+    });
+
+});
+
+</script>

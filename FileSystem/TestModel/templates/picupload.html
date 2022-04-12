@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>大海怪图片审核入库</title>
+  <link rel="stylesheet" href="//unpkg.com/layui@2.6.8/dist/css/layui.css">
+</head>
+<body>
+<!--
+<form method="post" enctype="multipart/form-data" action="/file_save/">
+
+   <div class="form-group">
+        <label for="icon_input">头像</label>
+        <input name="newFile" type="file" id="icon_input">
+    </div>
+
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-block">上传</button>
+
+</form>
+
+<button type="button" class="layui-btn" id="Upload">
+  <i class="layui-icon">&#xe67c;</i>上传图片
+</button>
+!-->
+<div class="layui-row">
+<div  style="padding: 5px;"></div>
+    <div class="layui-col-md9">
+        <div class="layui-input-inline">
+            <input id="store" type="button" class="layui-btn" value="入库">
+        </div>
+            <input id="delete" type="button" class="layui-btn layui-btn-danger" value="删除">
+            <!--视频补交输入具体大编号，如SNK178,图片补交输入已入库psd相同大编号!-->
+    </div>
+{% if request.session.username %}
+    <div class="layui-col-md3">
+        <div class="layui-input-inline">
+            <p class="layui-btn layui-btn-primary">欢迎{{request.session.username}}</p>
+        </div>
+<!--        <div class="layui-input-inline">
+            <a href="/logout/" class="layui-btn layui-btn-primary layui-border-blue">退出登录</a>
+        </div>-->
+    </div>
+{% endif %}
+</div>
+{% if file_list %}
+    <table class="layui-table" id="demo" lay-data="{height:860,  page:true, limit:90 , id:'myTable'}" lay-filter="test">
+    <thead>
+    <tr>
+    <th lay-data="{field:'check', width:50, sort: true,type:'checkbox'}"></th>
+    <th lay-data="{field:'id', width:80,align:'center', sort: true,type:'numbers'}">序号</th>
+    <th lay-data="{field:'content', width:200,align:'center', sort: true}">文件简称</th>
+    <th lay-data="{field:'upTime', width:180,align:'center', sort: true}">上传时间</th>
+    <th lay-data="{field:'fileAllName', width:200, align:'center',sort: true}">文件全名</th>
+    <th lay-data="{field:'cacheAdr', width:120,align:'center',sort: true}">缓存地址</th>
+    <th lay-data="{field:'showDate', width:140,align:'center', sort: true}">制作日期</th>
+    <th lay-data="{field:'bigNumbername', width:120, align:'center',sort: true}">大编号类型</th>
+    <th lay-data="{field:'bigNumbernum', width:120,align:'center', sort: true}">大编号序号</th>
+    <th lay-data="{field:'smallNumbernum', width:120,align:'center', sort: true}">小编号</th>
+    <th lay-data="{field:'productor', width:100,align:'center', sort: true}">制作人</th>
+    <th lay-data="{field:'gameName', width:100,align:'center', sort: true}">游戏</th>
+    <th lay-data="{field:'local', width:120,align:'center', sort: true}">本地化</th>
+    <th lay-data="{field:'size', width:80, align:'center',sort: true}">尺寸</th>
+    <th lay-data="{field:'use', width:80,align:'center', sort: true}">用途</th>
+    <th lay-data="{field:'language', width:80, align:'center',sort: true}">语言</th>
+    <th lay-data="{field:'fileType', width:200, sort: true}">类型</th>
+    <th lay-data="{field:'fileAdrs', width:120,align:'center',sort: true}">入库地址</th>
+    <th lay-data="{field:'fileName', width:200, align:'center',sort: true}">文件名</th>
+    </tr>
+    </thead>
+        {% for file in file_list %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td>{{file.content}}</td>
+                <td>{{file.up_time}}</td>
+                <td><input type="button" class="layui-btn layui-btn-primary layui-border-blue" onclick="openFile($(this).val())" value="{{file.file_name}}"></td>
+                <td><input type="button" class="layui-btn layui-btn-primary layui-border-green" onclick="openFileAdr($(this).val())" value="file://192.168.0.192/Marketing/Marketing/fileupdate/{{file.file_name}}"></td>
+                <td>{{file.production_date}}</td>
+                <td>{{file.big_number_name}}</td>
+                <td>{{file.big_number_num}}</td>
+                <td>{{file.small_number}}</td>
+                <td>{{file.producer}}</td>
+                <td>{{file.game_name}}</td>
+                <td>{{file.localization}}</td>
+                <td>{{file.size}}</td>
+                <td>{{file.use}}</td>
+                <td>{{file.language}}</td>
+                <td>{{file.file_type}}</td>
+                <td>{{file.file_adr}}</td>
+                <td>{{file.file_name}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <table class="layui-table" lay-data="{height:790,  page:true,limit:20 }" lay-filter="test">
+    <thead>
+    <tr>
+    <th lay-data="{field:'check', width:50, sort: true,type:'checkbox'}"></th>
+    <th lay-data="{field:'id', width:200, sort: true}">id</th>
+    <th lay-data="{field:'content', width:200, sort: true}">图片名称</th>
+    <th lay-data="{field:'upTime', width:180,align:'center', sort: true}">上传时间</th>
+    <th lay-data="{field:'fileAllName', width:200, align:'center',sort: true}">文件全名</th>
+    <th lay-data="{field:'cacheAdr', width:120}">缓存地址</th>
+    <th lay-data="{field:'showDate', width:120,sort: true}">日期</th>
+    <th lay-data="{field:'bigNumbername', width:120, sort: true}">大编号类型</th>
+    <th lay-data="{field:'bigNumbernum', width:120, sort: true}">大编号序号</th>
+    <th lay-data="{field:'smallNumbernum', width:100,align:'center', sort: true}">小编号</th>
+    <th lay-data="{field:'productor', width:150, sort: true}">制作人</th>
+    <th lay-data="{field:'gameName', width:100, sort: true}">游戏</th>
+    <th lay-data="{field:'local', width:120,align:'center', sort: true}">本地化</th>
+    <th lay-data="{field:'size', width:100, sort: true}">尺寸</th>
+    <th lay-data="{field:'use', width:200, sort: true}">用途</th>
+    <th lay-data="{field:'language', width:200, sort: true}">语言</th>
+    <th lay-data="{field:'fileType', width:200, sort: true}">类型</th>
+    <th lay-data="{field:'fileAdrs', width:120}">入库地址</th>
+    <th lay-data="{field:'fileName', width:200, align:'center',sort: true}">文件名</th>
+    </tr>
+    </thead>
+    </table>
+{% endif %}
+
+<script src="https://cdn.staticfile.org/jquery/2.0.0/jquery.min.js">
+</script>
+<script src="//unpkg.com/layui@2.6.8/dist/layui.js">
+</script>
+<script>
+
+function openFileI(filename){
+    $.ajax({
+        url: "/open_File/",
+        method: "GET", // or another (GET), whatever you need
+        data: {'adr':filename},
+        success: function (data) {
+            // success callback
+            // you can process data returned by function from views.py
+        }
+    });
+}
+
+function openFile(filename){
+    const el=document.createElement('input');
+    var data='#open#file://192.168.0.192/Marketing/Marketing/fileupdate/';
+    data+=filename;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+function openFileAdr(fileAdr){
+    const el=document.createElement('input');
+    var data='#openFileAdr#';
+    data+=fileAdr;
+    el.value=data;
+    el.setAttribute('readonly','');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+layui.use('table', function(){
+  var table = layui.table;
+
+  table.render({
+  id:'myTable'
+  });
+
+  //图片补交
+  $('#suppleStore').click(function(){
+      var content=$('#suppleContent').val();
+      if(content)
+      {
+          var checkStatus=table.checkStatus('myTable');
+          filename=checkStatus.data;
+          len=checkStatus.data.length;
+          if(filename[0]['fileType']=='mp4')
+          {
+              alert('当前选择为视频，请选择图片补交入库!');
+          }
+          else{
+            if(len==0){
+                  alert('未选择文件，请重新选择！')
+            }
+            else if(len>1){
+                  alert('只能选择一个文件，请重新选择！')
+            }
+            else if(len==1){
+                  var i=0;
+                var data='#suppleStore#';
+                data += filename[i]['fileAdrs']; //地址
+            data += '$';
+            data += filename[i]['fileName']; //文件名
+            data += '$';
+            data += filename[i]['bigNumbername'] //大编号类型
+            data += '$';
+            data += content  //大编号序号
+            data += '$';
+            data += filename[i]['showDate']     //日期
+            data += '$';
+            data += filename[i]['productor']    //制作人
+            data += '$';
+            data += filename[i]['gameName']     //游戏名
+            data += '$';
+            data += filename[i]['content']      //视频名称
+            data += '$';
+            data += filename[i]['local']        //本地化
+            data += '$';
+            data += filename[i]['size']         //尺寸
+            data += '$';
+            data += filename[i]['mode']         //制作模式,UE/AE/剪辑
+            data += '$';
+            data += filename[i]['language']     //语言
+            data += '$';
+            data += filename[i]['fileType']     //文件类型,jpg/psd/mp4
+            data+='$';
+            data+=filename[i]['smallNumbernum']    //小编号
+                  //复制到剪贴板
+                const el = document.createElement('input');
+                el.value = data;
+                el.setAttribute('readonly', '');
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            //后端响应
+            $.ajax({
+                    url: "/file_suppleStore/",
+                    method: "GET", // or another (GET), whatever you need
+                    data: {'length': len},
+                    success: function (data) {
+                        alert('入库成功');
+                        window.location.reload();
+                      // success callback
+                      // you can process data returned by function from views.py
+                    }
+                });
+            }
+          }
+      }
+      else {
+          alert('编号不可为空')
+      }
+  });
+
+  //删除
+  $('#delete').click(function(){
+      var checkStatus=table.checkStatus('myTable');
+      filename=checkStatus.data;
+      len=checkStatus.data.length;
+      if(len==0)
+      {
+          alert('尚未选择文件，请重新选择！')
+      }
+      else {
+          var msg = "该操作不可逆\n\n确认是否删除"
+          if (confirm(msg) == true) {
+              var data = '#deletepic#'
+              for (var i = 0; i < len; i++) {
+                  data += filename[i]['id'];
+                  data += '$';
+                  data += filename[i]['fileName'];
+                  if (i != len - 1) {
+                      data += '&';
+                  }
+              }
+              const el = document.createElement('input');
+              el.value = data;
+              el.setAttribute('readonly', '');
+              document.body.appendChild(el);
+              el.select();
+              document.execCommand('copy');
+              document.body.removeChild(el);
+              $.ajax({
+                  url: "/file_delete/",
+                  method: "GET", // or another (GET), whatever you need
+                  data: {'length': len},
+                  success: function (data) {
+                      alert('删除成功');
+                      window.location.reload();
+                      // success callback
+                      // you can process data returned by function from views.py
+                  }
+              });
+          }
+      }
+  });
+
+  //入库操作
+  $('#store').click(function(){
+  var checkStatus=table.checkStatus('myTable');
+  filename=checkStatus.data;
+  len=checkStatus.data.length;
+  //alert((filename[len-1]['fileAdrs']));
+      var allData='';
+        for( var i=0;i<len;i++)
+  {
+      allData+=filename[i]['id'];
+      if(i!=len-1)
+      allData+='&'
+  }
+  var data='#picstore#';
+  var isStore=true;
+  var warning='none';
+  //拼接剪切字符串
+  //判断是否可以批量入库
+  if(isStore==true) {
+      for (var i = 0; i < len; i++) {
+          data += filename[i]['fileAdrs']; //地址
+          data += '$';
+          data += filename[i]['fileName']; //文件名
+          data += '$';
+          data += filename[i]['bigNumbername'] //大编号类型
+          data += '$';
+          data += filename[i]['bigNumbernum']  //大编号序号
+          data += '$';
+          data += filename[i]['showDate']     //日期
+          data += '$';
+          data += filename[i]['productor']    //制作人
+          data += '$';
+          data += filename[i]['gameName']     //游戏名
+          data += '$';
+          data += filename[i]['content']      //图片名称
+          data += '$';
+          data += filename[i]['local']        //本地化
+          data += '$';
+          data += filename[i]['size']         //尺寸
+          data += '$';
+          data += filename[i]['use']         //用途,广告/商店/icon
+          data += '$';
+          data += filename[i]['language']     //语言
+          data += '$';
+          data += filename[i]['fileType']     //文件类型,jpg/psd
+          data+='$';
+          data+=filename[i]['smallNumbernum']    //小编号
+          if (i != len - 1)
+              data += '&';
+      }
+      //window.clipboardData.setData("text","");
+      const el = document.createElement('input');
+      el.value = data;
+      el.setAttribute('readonly', '');
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      //var msg = "等待文件入库\n\n出现入库成功弹窗后确认\n\n否则点击取消重试"
+      //if (confirm(msg) == true) {
+          if (len > 0) {
+              console.log(checkStatus.data) //获取选中行的数据
+              $.ajax({
+                  url: "/file_store/",
+                  method: "GET", // or another (GET), whatever you need
+                  data: {'allData': allData, 'length': len},
+                  success: function (data) {
+                      alert('上传成功');
+                      window.location.reload();
+                      // success callback
+                      // you can process data returned by function from views.py
+                  }
+              });
+          } else {
+              alert('没有选中任何文件')
+          }
+      //}
+  }
+  });
+
+});
+
+
+</script>
+</body>
+</html>
